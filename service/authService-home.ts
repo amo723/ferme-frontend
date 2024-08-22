@@ -3,7 +3,7 @@ import { User } from "../types/user";
 
 const OPENCARE_SWITCH = process.env.OPENCARE_SERVER;
 
-const API_URL = "http://82.208.23.238:8014/api";
+const API_URL = "http://localhost:8014/api";
 
 /*const OPENCARE_SERVER = process.env.OPENCARE_SERVER;
 const API_URL = `https//${OPENCARE_SERVER}/api`;*/
