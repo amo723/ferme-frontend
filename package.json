@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "ferme-frontend",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -7,6 +7,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "build": "eas build -p android",
     "test": "jest --watchAll"
   },
   "jest": {
@@ -19,6 +20,7 @@
     "@react-navigation/native-stack": "^6.11.0",
     "axios": "^1.7.4",
     "expo": "~51.0.26",
+    "expo-dev-client": "~4.0.24",
     "expo-font": "~12.0.9",
     "expo-linking": "~6.3.1",
     "expo-router": "~3.5.21",
@@ -26,6 +28,7 @@
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",
     "expo-web-browser": "~13.0.3",
+    "graphql": "^15.8.0",
     "native-base": "^3.4.28",
     "react": "18.2.0",
     "react-dom": "18.2.0",

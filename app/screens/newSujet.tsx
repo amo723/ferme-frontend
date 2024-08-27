@@ -6,35 +6,39 @@ import {
   StyleSheet,
   TextInput,
   SafeAreaView,
-  TouchableOpacity,
+  Pressable,
 } from "react-native";
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
 import api from "@/constants/api";
-import { Button, CheckBox } from "react-native-elements";
 import { ProtectedRoute } from "@/context/ProtectedRoute";
 import Spacing from "@/constants/Spacing";
 import FontSize from "@/constants/FontSize";
 import Colors from "@/constants/Colors";
 import Font from "@/constants/Font";
-import AppTextInput from "@/components/AppTextInput";
-import SelectDropdown from "react-native-select-dropdown";
-import { Ionicons } from "@expo/vector-icons";
-import RNPickerSelect from "react-native-picker-select";
+import AppSelectComponent from "@/components/AppSelect";
+
+interface Data {
+  label: string;
+  value: string;
+}
 
 export default function NewSujet() {
-  const [surface, setSurface] = useState("");
-  const [capaciteMax, setCapaciteMax] = useState("");
-
-  const [loges, setLoges] = useState([]);
-  const [type, setType] = useState("");
   const [idLoge, setIdLoge] = useState("");
-  const [typeEntree, setTypeEntree] = useState("");
-  const [libelle, setLibelle] = useState("");
   const [isSelected, setIsSelected] = useState(false);
 
+  const [data, setData] = useState<Data[]>([]);
+  const [typeEntree, setTypeEntree] = useState<string | "">("");
+  const [loge, setLoge] = useState<string | "">("");
+
+  const items = [
+    { id: "0", label: "Achat", value: "0" },
+    { id: "1", label: "Eclosion", value: "1" },
+    { id: "2", label: "Mutation", value: "2" },
+  ];
+
   useEffect(() => {
-    const types: any = [];
+    const types: Data[] = [];
     const func = async () => {
       await api
         .get(`loge`)
@@ -42,13 +46,12 @@ export default function NewSujet() {
           if (response.status === 200) {
             const data = response.data.results;
             data.map((item: any) => {
-              console.log(item);
               types.push({
                 value: item.id,
                 label: item.libelle,
               });
             });
-            setLoges(types);
+            setData(types);
           }
         })
         .catch(function (error) {
@@ -62,6 +65,15 @@ export default function NewSujet() {
 
   const toggleCheckbox = () => {
     setIsSelected(!isSelected);
+  };
+
+  const handleLogeChange = (itemValue: string) => {
+    console.log(itemValue);
+    setLoge(itemValue);
+  };
+  const handleTypeEntreeChange = (itemValue: string) => {
+    console.log(itemValue);
+    setTypeEntree(itemValue);
   };
 
   const handleClick = async () => {
@@ -113,15 +125,10 @@ export default function NewSujet() {
             >
               Loge
             </Text>
-            <RNPickerSelect
-              onValueChange={(value) => setIdLoge(value)}
-              items={loges}
-              style={pickerSelectStyles}
-              useNativeAndroidPickerStyle={false}
-              placeholder={{
-                label: "Sélectionner une loge...",
-                value: null,
-              }}
+            <AppSelectComponent
+              data={data}
+              selectedValue={loge}
+              onValueChange={handleLogeChange}
             />
           </View>
           <View>
@@ -135,16 +142,13 @@ export default function NewSujet() {
             >
               Type d'entrée
             </Text>
-            <RNPickerSelect
-              onValueChange={(value) => setTypeEntree(value)}
-              items={[
-                { label: "Achat", value: "0" },
-                { label: "Eclosion", value: "1" },
-                { label: "Mutation", value: "2" },
-              ]}
+            <AppSelectComponent
+              data={items}
+              selectedValue={typeEntree}
+              onValueChange={handleTypeEntreeChange}
             />
           </View>
-          <TouchableOpacity
+          <Pressable
             onPress={handleClick}
             style={{
               padding: Spacing * 2,
@@ -167,7 +171,7 @@ export default function NewSujet() {
             >
               Enregistrer
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </SafeAreaView>
     </ProtectedRoute>

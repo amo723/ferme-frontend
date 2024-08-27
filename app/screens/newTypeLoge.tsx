@@ -32,6 +32,7 @@ export default function NewTypeLoge() {
       .then((response) => {
         if (response.status === 201) {
           alert("Type de loge enregistre avec succes");
+          router.replace("/screens/typeLoge");
         }
         if (response.status === 202) {
           alert(`Le type de loge avec pour surface ${surface} existe deja`);

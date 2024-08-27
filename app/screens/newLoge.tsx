@@ -1,13 +1,6 @@
 // app/(tabs)/profile.tsx
 
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  SafeAreaView,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, Pressable } from "react-native";
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
 import api from "@/constants/api";
@@ -18,21 +11,21 @@ import FontSize from "@/constants/FontSize";
 import Colors from "@/constants/Colors";
 import Font from "@/constants/Font";
 import AppTextInput from "@/components/AppTextInput";
-import SelectDropdown from "react-native-select-dropdown";
-import { Ionicons } from "@expo/vector-icons";
-import RNPickerSelect from "react-native-picker-select";
+import AppSelectComponent from "@/components/AppSelect";
+
+interface Data {
+  label: string;
+  value: string;
+}
 
 export default function NewTypeLoge() {
-  const [surface, setSurface] = useState("");
-  const [capaciteMax, setCapaciteMax] = useState("");
-
-  const [typeLoges, setTypeLoges] = useState([]);
+  const [data, setData] = useState<Data[]>([]);
   const [type, setType] = useState("");
   const [libelle, setLibelle] = useState("");
   const [isSelected, setIsSelected] = useState(false);
 
   useEffect(() => {
-    const types: any = [];
+    const types: Data[] = [];
     const func = async () => {
       await api
         .get(`typeLoge`)
@@ -45,7 +38,7 @@ export default function NewTypeLoge() {
                 label: item.surface,
               });
             });
-            setTypeLoges(types);
+            setData(types);
           }
         })
         .catch(function (error) {
@@ -59,6 +52,11 @@ export default function NewTypeLoge() {
 
   const toggleCheckbox = () => {
     setIsSelected(!isSelected);
+  };
+
+  const handleTypeChange = (itemValue: string) => {
+    console.log(itemValue);
+    setType(itemValue);
   };
 
   const handleClick = async () => {
@@ -100,19 +98,14 @@ export default function NewTypeLoge() {
               Nouvelle loge
             </Text>
           </View>
-          <View>
+          <View style={{ flex: 1, justifyContent: "center" }}>
             <Text style={{ marginTop: 20, fontWeight: 700, fontSize: 16 }}>
               Type de loge
             </Text>
-            <RNPickerSelect
-              onValueChange={(value) => setType(value)}
-              items={typeLoges}
-              style={pickerSelectStyles}
-              useNativeAndroidPickerStyle={false}
-              placeholder={{
-                label: "Sélectionner le type de loge...",
-                value: null,
-              }}
+            <AppSelectComponent
+              data={data}
+              selectedValue={type}
+              onValueChange={handleTypeChange}
             />
           </View>
           <View>
@@ -137,7 +130,7 @@ export default function NewTypeLoge() {
               />
             </View>
           </View>
-          <TouchableOpacity
+          <Pressable
             onPress={handleClick}
             style={{
               padding: Spacing * 2,
@@ -160,7 +153,7 @@ export default function NewTypeLoge() {
             >
               Enregistrer
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </SafeAreaView>
     </ProtectedRoute>
@@ -234,6 +227,20 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 16,
+  },
+  picker: {
+    width: "100%",
+    padding: Spacing,
+    fontFamily: Font["poppins-regular"],
+    fontSize: FontSize.small,
+    backgroundColor: Colors.lightPrimary,
+    borderRadius: Spacing,
+    marginVertical: Spacing,
+    textAlignVertical: "top",
+  },
+  item: {
+    fontSize: 18,
+    color: "black",
   },
 });
 

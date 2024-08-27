@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "@/constants/api";
 import { Button } from "react-native-elements";
 import Colors from "@/constants/Colors";
@@ -43,9 +43,30 @@ export default function Recolte() {
     router.replace("/modal");
   };
 
-  const handleDelete = (item: any) => {
-    console.log("Supprimer l'élément");
-  };
+  // Utilser 'useCallback' pour mémoriser la fonction 'deleteItem', ce qui empêchera sa recréation à chaque rendu du composant
+  const deleteItem = useCallback(
+    async (element: any) => {
+      if (confirm("Voulez-vous vraiment effectuer cette suppression ?")) {
+        await api
+          .delete(`loge/delete/${element.id}`)
+          .then((response) => {
+            if (response.status === 204) {
+              setRecoltes((prevItems) =>
+                prevItems.filter((item) => item.id !== element.id)
+              );
+              alert("Loge supprimée avec succes");
+            } else {
+              alert("Erreur lors de la suppression de la loge");
+              return;
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
+    },
+    [setRecoltes]
+  );
 
   useEffect(() => {
     const types: any = [];
@@ -152,7 +173,7 @@ export default function Recolte() {
                 <Ionicons
                   name="trash"
                   size={25}
-                  onPress={() => handleDelete(item)}
+                  onPress={() => deleteItem(item)}
                 />
               </View>
             </View>

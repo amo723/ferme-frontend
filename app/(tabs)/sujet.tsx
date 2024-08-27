@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "@/constants/api";
 import { Button } from "react-native-elements";
 import Colors from "@/constants/Colors";
@@ -41,9 +41,30 @@ export default function SujetScreen() {
     console.log("Modifier l'élément");
   };
 
-  const handleDelete = (item: any) => {
-    console.log("Supprimer l'élément");
-  };
+  // Utilser 'useCallback' pour mémoriser la fonction 'deleteItem', ce qui empêchera sa recréation à chaque rendu du composant
+  const deleteItem = useCallback(
+    async (element: any) => {
+      if (confirm("Voulez-vous vraiment effectuer cette suppression ?")) {
+        await api
+          .delete(`sujet/delete/${element.id}`)
+          .then((response) => {
+            if (response.status === 204) {
+              setSujets((prevItems) =>
+                prevItems.filter((item) => item.id !== element.id)
+              );
+              alert("Sujet supprimé avec succes");
+            } else {
+              alert("Erreur lors de la suppression du sujet");
+              return;
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
+    },
+    [setSujets]
+  );
 
   useEffect(() => {
     const types: any = [];
@@ -57,7 +78,7 @@ export default function SujetScreen() {
               console.log(item);
               types.push({
                 id: item.id,
-                libelle: item.date,
+                libelle: getFormattedDateFR(new Date(item.date)),
               });
             });
             setSujets(types);
@@ -71,6 +92,39 @@ export default function SujetScreen() {
 
     return () => {};
   }, []);
+
+  const getFormattedDateFR = (date: Date): string => {
+    // Options pour formater la date en français
+    const dateOptions: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    };
+
+    // Options pour formater l'heure
+    const timeOptions: Intl.DateTimeFormatOptions = {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    };
+
+    // Utilisation de Intl.DateTimeFormat pour formater la date
+    const formattedDate: string = new Intl.DateTimeFormat(
+      "fr-FR",
+      dateOptions
+    ).format(date);
+    // Utilisation de Intl.DateTimeFormat pour formater l'heure
+    const formattedTime: string = new Intl.DateTimeFormat(
+      "fr-FR",
+      timeOptions
+    ).format(date);
+
+    // Combinez la date et l'heure formatées
+    //console.log(`${formattedDate} - ${formattedTime}`);
+    //return `${formattedDate} - ${formattedTime}`;
+    return `${formattedTime}`;
+  };
 
   return (
     <ProtectedRoute>
@@ -150,7 +204,7 @@ export default function SujetScreen() {
                 <Ionicons
                   name="trash"
                   size={25}
-                  onPress={() => handleDelete(item)}
+                  onPress={() => deleteItem(item)}
                 />
               </View>
             </View>

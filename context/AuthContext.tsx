@@ -7,17 +7,20 @@ import React, {
 } from "react";
 import { loginUser, logoutUser, registerUser } from "../service/authService";
 import { User } from "../types/user";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// Interface pour le contexte de l'authentification
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   login: (username: string, password: string) => Promise<void>;
-  register: (name:string, username: string, password: string) => Promise<void>;
+  register: (name: string, username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   loading: boolean;
   error: string | null;
 }
 
+// Création du contexte d'authentification
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
@@ -28,23 +31,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Chargement de l'utilisateur depuis AsyncStorage au démarrage de l'application
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    const loadUser = async () => {
+      const storedUser = await AsyncStorage.getItem("user");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser) as User;
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+      }
+      setLoading(false);
+    };
+
+    loadUser();
   }, []);
 
+  // Fonction de connexion
   const login = async (username: string, password: string) => {
     try {
       setLoading(true);
       setError(null);
       const loggedInUser = await loginUser(username, password);
-      console.log("logged user", loggedInUser);
       setIsAuthenticated(true);
       setUser(loggedInUser);
-      localStorage.setItem("user", JSON.stringify(loggedInUser));
+      await AsyncStorage.setItem("user", JSON.stringify(loggedInUser));
     } catch (err) {
       setError("Login failed. Please try again.");
     } finally {
@@ -52,26 +62,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const register = async (name:string, username: string, password: string) => {
+  // Fonction d'inscription
+  const register = async (name: string, username: string, password: string) => {
     try {
       setLoading(true);
       setError(null);
       const registeredUser = await registerUser(name, username, password);
-      console.log("registered user", registeredUser);
+      setIsAuthenticated(true);
       setUser(registeredUser);
-      localStorage.setItem("user", JSON.stringify(registeredUser));
+      await AsyncStorage.setItem("user", JSON.stringify(registeredUser));
     } catch (err) {
-      setError("Registered user failed. Please try again.");
+      setError("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Fonction de déconnexion
   const logout = async () => {
     try {
       await logoutUser();
       setUser(null);
-      localStorage.removeItem("user");
+      await AsyncStorage.removeItem("user");
       setIsAuthenticated(false);
     } catch (err) {
       setError("Logout failed. Please try again.");
@@ -79,17 +91,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, register, logout, loading, error }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, user, login, register, logout, loading, error }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
+// Hook personnalisé pour accéder facilement au contexte d'authentification
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error(
-      "useAuth doit être utilisé à l'intérieur d'un AuthProvider"
+      "useAuth must be used within an AuthProvider"
     );
   }
   return context;

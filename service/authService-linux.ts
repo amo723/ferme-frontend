@@ -1,8 +1,7 @@
 import axios from "axios";
 import { User } from "../types/user";
-import { API_BASE_URL, API_BASE_URL_ONLINE } from "@/constants/config";
 
-const API_URL = API_BASE_URL_ONLINE + "api";
+const API_URL = "http://192.168.0.11:8013/api";
 
 /*const OPENCARE_SERVER = process.env.OPENCARE_SERVER;
 const API_URL = `https//${OPENCARE_SERVER}/api`;*/
@@ -22,12 +21,12 @@ export const loginUser = async (
 
 export const registerUser = async (
   name: string,
-  username: string,
+  email: string,
   password: string
 ): Promise<User> => {
   const response = await axios.post(`${API_URL}/auth/register`, {
     name,
-    username,
+    email,
     password,
   });
   const { token } = response.data;
