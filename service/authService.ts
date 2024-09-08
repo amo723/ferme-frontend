@@ -1,11 +1,10 @@
 import axios from "axios";
 import { User } from "../types/user";
-import { API_BASE_URL, API_BASE_URL_ONLINE } from "@/constants/config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_BASE_URL, API_BASE_URL_ONLINE, apiUrl } from "@/constants/config";
 
-const API_URL = API_BASE_URL_ONLINE + "api";
-
-/*const OPENCARE_SERVER = process.env.OPENCARE_SERVER;
-const API_URL = `https//${OPENCARE_SERVER}/api`;*/
+//const API_URL = `${API_BASE_URL_ONLINE}api`;
+const API_URL = `${apiUrl}api`;
 
 export const loginUser = async (
   username: string,
@@ -16,7 +15,7 @@ export const loginUser = async (
     password,
   });
   const { token } = response.data;
-  localStorage.setItem("token", token);
+  AsyncStorage.setItem("token", token);
   return getUserInfo();
 };
 
@@ -31,12 +30,12 @@ export const registerUser = async (
     password,
   });
   const { token } = response.data;
-  localStorage.setItem("token", token);
+  AsyncStorage.setItem("token", token);
   return getUserInfo();
 };
 
 export const getUserInfo = async (): Promise<User> => {
-  const token = localStorage.getItem("token");
+  const token = AsyncStorage.getItem("token");
   const response = await axios.get(`${API_URL}/users/user`, {
     headers: {
       "Content-Type": "application/json",
@@ -47,5 +46,5 @@ export const getUserInfo = async (): Promise<User> => {
 };
 
 export const logoutUser = async (): Promise<void> => {
-  localStorage.removeItem("token");
+  AsyncStorage.removeItem("token");
 };

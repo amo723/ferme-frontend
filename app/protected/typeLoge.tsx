@@ -11,17 +11,16 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Pressable,
+  Alert,
 } from "react-native";
 import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import api from "@/constants/api";
-import { Button } from "react-native-elements";
-import Colors from "@/constants/Colors";
 import Spacing from "@/constants/Spacing";
 import FontSize from "@/constants/FontSize";
 import Font from "@/constants/Font";
-import { ProtectedRoute } from "@/context/ProtectedRoute";
+import { Colors } from "@/constants/Colors";
 
 const { width, height } = Dimensions.get("screen");
 
@@ -45,26 +44,44 @@ export default function TypeLoge() {
 
   useEffect(() => {
     const types: any = [];
-    const func = async () => {
-      await api
-        .get(`typeLoge`)
-        .then(function (response) {
-          if (response.status === 200) {
-            const data = response.data.results;
-            data.map((item: any) => {
-              types.push({
-                id: item.id,
-                libelle: item.surface,
-              });
-            });
-            setTypeLoges(types);
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
+
+    async function fetchData() {
+      let apiData: any = null;
+
+      try {
+        const response = await fetch("http://kerneltech.cloud/typeLoge", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            // Ajouter d'autres en-têtes si nécessaire
+          },
         });
-    };
-    func();
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        apiData = await response.json(); // Stocker les données dans la variable
+        console.log(apiData); // Vous pouvez utiliser les données ici
+      } catch (error) {
+        console.error("Error:", error);
+      }
+
+      return apiData;
+    }
+
+    // Exemple d'appel de la fonction
+    fetchData().then((data) => {
+      // Vous pouvez utiliser 'data' ici si nécessaire
+      console.log("ddddd", data);
+      data.results.map((item: any) => {
+        types.push({
+          id: item.id,
+          libelle: item.surface,
+        });
+      });
+      setTypeLoges(types);
+    });
 
     return () => {};
   }, []);
@@ -80,9 +97,9 @@ export default function TypeLoge() {
               setTypeLoges((prevItems) =>
                 prevItems.filter((item) => item.id !== element.id)
               );
-              alert("Type de loge supprimé avec succes");
+              Alert.alert("Type de loge supprimé avec succes");
             } else {
-              alert("Erreur lors de la suppression du type de loge");
+              Alert.alert("Erreur lors de la suppression du type de loge");
               return;
             }
           })
@@ -95,7 +112,7 @@ export default function TypeLoge() {
   );
 
   return (
-    <ProtectedRoute>
+    <>
       <View>
         <View style={{ alignItems: "center" }}>
           <Text
@@ -119,7 +136,7 @@ export default function TypeLoge() {
           }}
         >
           <Pressable
-            onPress={() => router.push("/screens/newTypeLoge")}
+            onPress={() => router.push("/protected/newTypeLoge")}
             style={{
               marginHorizontal: 10,
               padding: Spacing * 2,
@@ -180,7 +197,7 @@ export default function TypeLoge() {
           keyExtractor={(item) => item.id}
         />
       </View>
-    </ProtectedRoute>
+    </>
   );
 }
 

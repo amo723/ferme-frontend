@@ -12,14 +12,12 @@ import {
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
 import api from "@/constants/api";
-import { ProtectedRoute } from "@/context/ProtectedRoute";
 import Spacing from "@/constants/Spacing";
 import FontSize from "@/constants/FontSize";
-import Colors from "@/constants/Colors";
 import Font from "@/constants/Font";
 import AppTextInput from "@/components/AppTextInput";
-import RNPickerSelect from "react-native-picker-select";
 import AppSelectComponent from "@/components/AppSelect";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
 interface Data {
   label: string;
@@ -96,7 +94,7 @@ export default function NewRecolte() {
   };
 
   return (
-    <ProtectedRoute>
+    <>
       <SafeAreaView>
         <View style={{ padding: Spacing * 2 }}>
           <View style={{ alignItems: "center" }}>
@@ -177,7 +175,7 @@ export default function NewRecolte() {
           </Pressable>
         </View>
       </SafeAreaView>
-    </ProtectedRoute>
+    </>
   );
 }
 

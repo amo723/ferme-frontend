@@ -1,41 +1,53 @@
 // app/(tabs)/profile.tsx
 
-import { View, Text, StyleSheet, SafeAreaView, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  SafeAreaView,
+  Pressable,
+} from "react-native";
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
 import api from "@/constants/api";
-import { Button, CheckBox } from "react-native-elements";
-import { ProtectedRoute } from "@/context/ProtectedRoute";
 import Spacing from "@/constants/Spacing";
 import FontSize from "@/constants/FontSize";
-import Colors from "@/constants/Colors";
 import Font from "@/constants/Font";
-import AppTextInput from "@/components/AppTextInput";
 import AppSelectComponent from "@/components/AppSelect";
+import { Colors } from "@/constants/Colors";
 
 interface Data {
   label: string;
   value: string;
 }
 
-export default function NewTypeLoge() {
-  const [data, setData] = useState<Data[]>([]);
-  const [type, setType] = useState("");
-  const [libelle, setLibelle] = useState("");
+export default function NewSujet() {
+  const [idLoge, setIdLoge] = useState("");
   const [isSelected, setIsSelected] = useState(false);
+
+  const [data, setData] = useState<Data[]>([]);
+  const [typeEntree, setTypeEntree] = useState<string | "">("");
+  const [loge, setLoge] = useState<string | "">("");
+
+  const items = [
+    { id: "0", label: "Achat", value: "0" },
+    { id: "1", label: "Eclosion", value: "1" },
+    { id: "2", label: "Mutation", value: "2" },
+  ];
 
   useEffect(() => {
     const types: Data[] = [];
     const func = async () => {
       await api
-        .get(`typeLoge`)
+        .get(`loge`)
         .then(function (response) {
           if (response.status === 200) {
             const data = response.data.results;
             data.map((item: any) => {
               types.push({
                 value: item.id,
-                label: item.surface,
+                label: item.libelle,
               });
             });
             setData(types);
@@ -54,26 +66,29 @@ export default function NewTypeLoge() {
     setIsSelected(!isSelected);
   };
 
-  const handleTypeChange = (itemValue: string) => {
+  const handleLogeChange = (itemValue: string) => {
     console.log(itemValue);
-    setType(itemValue);
+    setLoge(itemValue);
+  };
+  const handleTypeEntreeChange = (itemValue: string) => {
+    console.log(itemValue);
+    setTypeEntree(itemValue);
   };
 
   const handleClick = async () => {
     await api
-      .post(`loge/new`, {
-        typeLoge: type,
-        libelle: libelle,
-        active: isSelected,
-        date_activation_desactivation: new Date(),
+      .post(`sujet/new`, {
+        id_loge: idLoge,
+        type_entree: typeEntree,
+        date_entree_sujet: new Date(),
       })
       .then((response) => {
         if (response.status === 201) {
-          alert("Loge enregistree avec succes");
-          router.replace("/loge");
+          alert("Nouveau sujet ajouté avec succes");
+          router.replace("/sujet");
         }
         if (response.status === 202) {
-          alert(`Cette loge existe deja`);
+          alert(`Ce sujet existe deja`);
           return;
         }
       })
@@ -83,7 +98,7 @@ export default function NewTypeLoge() {
   };
 
   return (
-    <ProtectedRoute>
+    <>
       <SafeAreaView>
         <View style={{ padding: Spacing * 2 }}>
           <View style={{ alignItems: "center" }}>
@@ -95,40 +110,42 @@ export default function NewTypeLoge() {
                 marginVertical: Spacing * 3,
               }}
             >
-              Nouvelle loge
+              Nouveau sujet
             </Text>
           </View>
-          <View style={{ flex: 1, justifyContent: "center" }}>
-            <Text style={{ marginTop: 20, fontWeight: 700, fontSize: 16 }}>
-              Type de loge
+          <View>
+            <Text
+              style={{
+                fontFamily: Font["poppins-bold"],
+                marginVertical: 20,
+                fontWeight: 700,
+                fontSize: 16,
+              }}
+            >
+              Loge
             </Text>
             <AppSelectComponent
               data={data}
-              selectedValue={type}
-              onValueChange={handleTypeChange}
+              selectedValue={loge}
+              onValueChange={handleLogeChange}
             />
           </View>
           <View>
-            <Text style={{ marginTop: 20, fontWeight: 700, fontSize: 16 }}>
-              Libellé
-            </Text>
-            <AppTextInput
-              value={libelle}
-              onChangeText={setLibelle}
-              placeholder="Saisir le libelle"
-            />
-            <View
+            <Text
               style={{
-                flexDirection: "row",
-                justifyContent: "flex-start",
+                fontFamily: Font["poppins-bold"],
+                marginVertical: 20,
+                fontWeight: 700,
+                fontSize: 16,
               }}
             >
-              <CheckBox
-                title="Activer la loge?"
-                checked={isSelected}
-                onPress={toggleCheckbox}
-              />
-            </View>
+              Type d'entrée
+            </Text>
+            <AppSelectComponent
+              data={items}
+              selectedValue={typeEntree}
+              onValueChange={handleTypeEntreeChange}
+            />
           </View>
           <Pressable
             onPress={handleClick}
@@ -156,7 +173,7 @@ export default function NewTypeLoge() {
           </Pressable>
         </View>
       </SafeAreaView>
-    </ProtectedRoute>
+    </>
   );
 }
 
@@ -227,20 +244,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 16,
-  },
-  picker: {
-    width: "100%",
-    padding: Spacing,
-    fontFamily: Font["poppins-regular"],
-    fontSize: FontSize.small,
-    backgroundColor: Colors.lightPrimary,
-    borderRadius: Spacing,
-    marginVertical: Spacing,
-    textAlignVertical: "top",
-  },
-  item: {
-    fontSize: 18,
-    color: "black",
   },
 });
 

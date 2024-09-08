@@ -8,16 +8,16 @@ import React, {
 import { loginUser, logoutUser, registerUser } from "../service/authService";
 import { User } from "../types/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 // Interface pour le contexte de l'authentification
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: User | null;
-  login: (username: string, password: string) => Promise<void>;
-  register: (name: string, username: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  loading: boolean;
-  error: string | null;
+  isLoading: boolean;
+  user: string | null;
+  token: string | null;
+  login: (username: string, password: string) => Promise<boolean>;
+  logout: () => void;
 }
 
 // Création du contexte d'authentification
@@ -26,73 +26,58 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
-  // Chargement de l'utilisateur depuis AsyncStorage au démarrage de l'application
   useEffect(() => {
-    const loadUser = async () => {
-      const storedUser = await AsyncStorage.getItem("user");
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser) as User;
-        setUser(parsedUser);
-        setIsAuthenticated(true);
+    const loadToken = async () => {
+      try {
+        const storedToken = await SecureStore.getItemAsync("userToken");
+        if (storedToken) {
+          setToken(storedToken);
+          setIsAuthenticated(true);
+          // Vous pouvez également récupérer les informations de l'utilisateur
+        }
+      } catch (error) {
+        console.error("Error laoding token:", error);
+      } finally {
+        setIsLoading(false);
       }
-      setLoading(false);
     };
-
-    loadUser();
+    loadToken();
   }, []);
 
-  // Fonction de connexion
-  const login = async (username: string, password: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const loggedInUser = await loginUser(username, password);
+  const login = async (
+    username: string,
+    password: string
+  ): Promise<boolean> => {
+    // Ici, vous pouvez intégrer une logique d'authentification réelle
+    // Par exemple, une requête vers une API
+    // Pour cet exemple, nous simulons une authentification réussie
+    if (username === "admin" && password === "password") {
+      const fakeToken = "fake-jwt-token";
+      setToken(fakeToken);
+      setUser(username);
       setIsAuthenticated(true);
-      setUser(loggedInUser);
-      await AsyncStorage.setItem("user", JSON.stringify(loggedInUser));
-    } catch (err) {
-      setError("Login failed. Please try again.");
-    } finally {
-      setLoading(false);
+      await SecureStore.setItemAsync("userToken", fakeToken);
+      return true;
     }
+    // Authentification échouée
+    return false;
   };
 
-  // Fonction d'inscription
-  const register = async (name: string, username: string, password: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const registeredUser = await registerUser(name, username, password);
-      setIsAuthenticated(true);
-      setUser(registeredUser);
-      await AsyncStorage.setItem("user", JSON.stringify(registeredUser));
-    } catch (err) {
-      setError("Registration failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fonction de déconnexion
   const logout = async () => {
-    try {
-      await logoutUser();
-      setUser(null);
-      await AsyncStorage.removeItem("user");
-      setIsAuthenticated(false);
-    } catch (err) {
-      setError("Logout failed. Please try again.");
-    }
+    setIsAuthenticated(false);
+    setUser(null);
+    setToken(null);
+    await SecureStore.deleteItemAsync("userToken");
   };
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, login, register, logout, loading, error }}
+      value={{ isAuthenticated, user, isLoading, token, login, logout }}
     >
       {children}
     </AuthContext.Provider>
@@ -103,9 +88,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error(
-      "useAuth must be used within an AuthProvider"
-    );
+    throw new Error("useAuth doit être utilisé dans un AuthProvider");
   }
   return context;
 };

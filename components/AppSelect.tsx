@@ -1,11 +1,11 @@
 import { View, Text, TextInput } from "react-native";
 import React, { useEffect, useState } from "react";
-import Colors from "@/constants/Colors";
 import Font from "@/constants/Font";
 import FontSize from "@/constants/FontSize";
 import Spacing from "@/constants/Spacing";
 import { Picker, PickerItemProps } from "@react-native-picker/picker";
 import api from "@/constants/api";
+import { Colors } from "@/constants/Colors";
 
 interface PickerProps {
   data: { label: string; value: string }[];
@@ -18,6 +18,9 @@ const AppSelectComponent: React.FC<PickerProps> = ({
   selectedValue,
   onValueChange,
 }) => {
+  data = data || [];
+  selectedValue = selectedValue || "";
+
   const [focused, setFocused] = useState(false);
 
   return (

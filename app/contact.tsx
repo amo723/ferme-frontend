@@ -1,9 +1,11 @@
+import { Link } from "expo-router";
 import { Text, View } from "react-native";
 
-export default function SettingPage() {
+export default function ContactPage() {
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Setting Tab</Text>
+      <Text>Contact Page</Text>
+      <Link href={"/"}>Go back Home</Link>
     </View>
   );
 }

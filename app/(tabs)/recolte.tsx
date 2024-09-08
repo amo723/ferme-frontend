@@ -10,17 +10,17 @@ import {
   StatusBar,
   SafeAreaView,
   TouchableOpacity,
+  Pressable,
 } from "react-native";
 import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import api from "@/constants/api";
-import { Button } from "react-native-elements";
-import Colors from "@/constants/Colors";
 import Spacing from "@/constants/Spacing";
 import FontSize from "@/constants/FontSize";
 import Font from "@/constants/Font";
 import { ProtectedRoute } from "@/context/ProtectedRoute";
+import { Colors } from "@/constants/Colors";
 
 const { width, height } = Dimensions.get("screen");
 
@@ -96,7 +96,7 @@ export default function Recolte() {
   }, []);
 
   return (
-    <ProtectedRoute>
+    <>
       <View>
         <View style={{ alignItems: "center" }}>
           <Text
@@ -119,8 +119,8 @@ export default function Recolte() {
             margin: 20,
           }}
         >
-          <TouchableOpacity
-            onPress={() => router.push("/screens/newRecolte")}
+          <Pressable
+            onPress={() => router.push("/protected/newRecolte")}
             style={{
               marginHorizontal: 10,
               padding: Spacing * 2,
@@ -134,7 +134,7 @@ export default function Recolte() {
             }}
           >
             <Ionicons name="add" size={30} color={"white"} />
-          </TouchableOpacity>
+          </Pressable>
         </View>
         <FlatList
           data={recoltes}
@@ -181,7 +181,7 @@ export default function Recolte() {
           keyExtractor={(item) => item.id}
         />
       </View>
-    </ProtectedRoute>
+    </>
   );
 }
 

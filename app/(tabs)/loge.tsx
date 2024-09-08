@@ -10,18 +10,18 @@ import {
   StatusBar,
   Modal,
   Pressable,
+  TouchableOpacity,
 } from "react-native";
 import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import api from "@/constants/api";
 import { Button } from "react-native-elements";
-import Colors from "@/constants/Colors";
 import Spacing from "@/constants/Spacing";
 import FontSize from "@/constants/FontSize";
 import Font from "@/constants/Font";
-import { ProtectedRoute } from "@/context/ProtectedRoute";
 import AppTextInput from "@/components/AppTextInput";
+import { Colors } from "@/constants/Colors";
 
 const { width, height } = Dimensions.get("screen");
 
@@ -41,10 +41,61 @@ export default function LogeScreen() {
 
   useEffect(() => {
     const types: any = [];
-    const func = async () => {
+
+    async function fetchData() {
+      let apiData: any = null;
+
+      try {
+        const response = await fetch("https://kerneltech.cloud/loge", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            // Ajouter d'autres en-têtes si nécessaire
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        apiData = await response.json(); // Stocker les données dans la variable
+        console.log(apiData); // Vous pouvez utiliser les données ici
+      } catch (error) {
+        console.error("Error:", error);
+      }
+
+      return apiData;
+    }
+
+    // Exemple d'appel de la fonction
+    fetchData().then((data) => {
+      // Vous pouvez utiliser 'data' ici si nécessaire
+      console.log("ddddd", data);
+      data.results.map((item: any) => {
+        types.push({
+          id: item.id,
+          libelle: item.libelle,
+        });
+      });
+      setLoges(types);
+    });
+
+    /*const func = async () => {
+      await fetch("http://kerneltech.cloud/loge", {
+        method: "GET", // ou 'POST', 'PUT', etc.
+        headers: {
+          "Content-Type": "application/json",
+          // Ajouter d'autres en-têtes si nécessaire
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => console.log("data", data.results))
+        .catch((error) => console.error("Error:", error));
+
       await api
         .get(`loge`)
         .then(function (response) {
+          console.log(response);
           if (response.status === 200) {
             const data = response.data.results;
             data.map((item: any) => {
@@ -57,10 +108,10 @@ export default function LogeScreen() {
           }
         })
         .catch(function (error) {
-          console.log(error);
+          console.log("error", error);
         });
     };
-    func();
+    func();*/
 
     return () => {};
   }, []);
@@ -91,7 +142,7 @@ export default function LogeScreen() {
   );
 
   return (
-    <ProtectedRoute>
+    <>
       <View>
         <View style={{ alignItems: "center" }}>
           <Text
@@ -115,7 +166,7 @@ export default function LogeScreen() {
           }}
         >
           <Pressable
-            onPress={() => router.push("/screens/typeLoge")}
+            onPress={() => router.push("/protected/typeLoge")}
             style={{
               marginHorizontal: 10,
               padding: Spacing * 2,
@@ -140,7 +191,7 @@ export default function LogeScreen() {
             </Text>
           </Pressable>
           <Pressable
-            onPress={() => router.push("/screens/newLoge")}
+            onPress={() => router.push("/protected/newLoge")}
             style={{
               marginHorizontal: 10,
               padding: Spacing * 2,
@@ -187,10 +238,10 @@ export default function LogeScreen() {
               </View>
               <View style={{ flexDirection: "row" }}>
                 {/*<Link href={`/updateModal/${item}`} asChild>
-                  <TouchableOpacity>
-                    <Ionicons name="create" size={25} />
-                  </TouchableOpacity>
-                  </Link>*/}
+                    <TouchableOpacity>
+                      <Ionicons name="create" size={25} />
+                    </TouchableOpacity>
+                    </Link>*/}
                 <Ionicons
                   name="create"
                   size={25}
@@ -256,7 +307,7 @@ export default function LogeScreen() {
           </View>
         </Modal>
       </View>
-    </ProtectedRoute>
+    </>
   );
 }
 
