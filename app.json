@@ -1,16 +1,50 @@
 {
   "expo": {
-    "extra": {
-      "eas": {
-        "projectId": "b114b159-3266-4830-ba71-6421759afe43"
-      }
+    "name": "my-app",
+    "slug": "my-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "myapp",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.madibacorp.madiba"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     },
     "android": {
-      "package": "com.amo237.myapp",
+      "package": "com.madibacorp.madiba",
       "permissions": [
         "INTERNET"
       ],
+      "versionCode": 1
     },
-    "owner": "amo237"
+    "adaptiveIcon": {
+      "foregroundImage": "./assets/adaptive-icon.png",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": [
+      "expo-secure-store"
+    ],
+    "network": {
+      "allowExternalNetworking": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "defac88a-49ac-4dd4-8e6c-c4c40507fca2"
+      }
+    }
   }
 }
