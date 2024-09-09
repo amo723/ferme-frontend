@@ -6,7 +6,10 @@
       }
     },
     "android": {
-      "package": "com.amo237.myapp"
+      "package": "com.amo237.myapp",
+      "permissions": [
+        "INTERNET"
+      ],
     },
     "owner": "amo237"
   }
