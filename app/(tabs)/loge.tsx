@@ -70,7 +70,6 @@ export default function LogeScreen() {
     // Exemple d'appel de la fonction
     fetchData().then((data) => {
       // Vous pouvez utiliser 'data' ici si nécessaire
-      console.log("ddddd", data);
       data.results.map((item: any) => {
         types.push({
           id: item.id,
